@@ -12,15 +12,37 @@ const hoverColors = [
   "#dc2626",
   "#4f46e5",
 ];
+const canUseHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+const touchPressDelay = 120;
+const touchMoveThreshold = 8;
+let activeTouchPress = null;
 
 function randomHoverColor() {
   return hoverColors[Math.floor(Math.random() * hoverColors.length)];
 }
 
+function clearRowColor(row) {
+  row.classList.remove("is-hovered", "is-pressed");
+}
+
+function clearAllRowColors() {
+  toolRows.forEach(clearRowColor);
+}
+
+function cancelTouchPress() {
+  if (!activeTouchPress) {
+    return;
+  }
+
+  window.clearTimeout(activeTouchPress.timer);
+  clearRowColor(activeTouchPress.row);
+  activeTouchPress = null;
+}
+
 toolRows.forEach((row) => {
   row.addEventListener("pointerenter", (event) => {
-    if (event.pointerType !== "mouse") {
-      row.classList.remove("is-hovered");
+    if (event.pointerType !== "mouse" || !canUseHover.matches) {
+      clearRowColor(row);
       return;
     }
 
@@ -29,15 +51,58 @@ toolRows.forEach((row) => {
   });
 
   row.addEventListener("pointerleave", () => {
-    row.classList.remove("is-hovered");
+    clearRowColor(row);
+  });
+
+  row.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse") {
+      return;
+    }
+
+    cancelTouchPress();
+    activeTouchPress = {
+      row,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      timer: window.setTimeout(() => {
+        if (!activeTouchPress || activeTouchPress.row !== row) {
+          return;
+        }
+
+        row.style.setProperty("--hover-color", randomHoverColor());
+        row.classList.add("is-pressed");
+      }, touchPressDelay),
+    };
+  });
+
+  row.addEventListener("pointermove", (event) => {
+    if (!activeTouchPress || activeTouchPress.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const deltaX = Math.abs(event.clientX - activeTouchPress.startX);
+    const deltaY = Math.abs(event.clientY - activeTouchPress.startY);
+
+    if (deltaX > touchMoveThreshold || deltaY > touchMoveThreshold) {
+      cancelTouchPress();
+    }
+  });
+
+  row.addEventListener("pointerup", cancelTouchPress);
+
+  row.addEventListener("pointerout", (event) => {
+    if (event.pointerType !== "mouse") {
+      cancelTouchPress();
+    }
   });
 
   row.addEventListener("pointercancel", () => {
-    row.classList.remove("is-hovered");
+    cancelTouchPress();
   });
 
   row.addEventListener("touchend", () => {
-    row.classList.remove("is-hovered");
+    cancelTouchPress();
   });
 
   row.addEventListener("click", (event) => {
@@ -57,6 +122,9 @@ toolRows.forEach((row) => {
     openToolLink(row);
   });
 });
+
+window.addEventListener("scroll", cancelTouchPress, { passive: true });
+window.addEventListener("blur", clearAllRowColors);
 
 function openToolLink(row) {
   window.open(row.dataset.url, "_blank", "noopener,noreferrer");
