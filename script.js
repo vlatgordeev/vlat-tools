@@ -160,7 +160,7 @@ function isInteractiveClickTarget(element) {
 }
 
 document.addEventListener("click", (event) => {
-  if (isInteractiveClickTarget(event.target)) {
+  if (canUseHover.matches && isInteractiveClickTarget(event.target)) {
     playClickSound();
   }
 });
