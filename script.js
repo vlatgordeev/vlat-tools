@@ -18,12 +18,25 @@ function randomHoverColor() {
 }
 
 toolRows.forEach((row) => {
-  row.addEventListener("pointerenter", () => {
+  row.addEventListener("pointerenter", (event) => {
+    if (event.pointerType !== "mouse") {
+      row.classList.remove("is-hovered");
+      return;
+    }
+
     row.style.setProperty("--hover-color", randomHoverColor());
     row.classList.add("is-hovered");
   });
 
   row.addEventListener("pointerleave", () => {
+    row.classList.remove("is-hovered");
+  });
+
+  row.addEventListener("pointercancel", () => {
+    row.classList.remove("is-hovered");
+  });
+
+  row.addEventListener("touchend", () => {
     row.classList.remove("is-hovered");
   });
 

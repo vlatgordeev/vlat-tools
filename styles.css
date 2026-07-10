@@ -193,6 +193,12 @@ h2 {
   opacity: 1;
 }
 
+@media (hover: none) {
+  .tool-row.is-hovered {
+    color: var(--text);
+  }
+}
+
 .page-footer {
   display: grid;
   grid-template-columns: minmax(0, 512px) max-content;
