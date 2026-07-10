@@ -1,5 +1,6 @@
 const toolRows = document.querySelectorAll(".tool-row");
 const avatarLink = document.querySelector(".avatar-link");
+const page = document.querySelector(".page");
 const clickSound = new Audio("./assets/sound.mp3");
 clickSound.preload = "auto";
 const hoverColors = [
@@ -16,6 +17,17 @@ const hoverColors = [
 function randomHoverColor() {
   return hoverColors[Math.floor(Math.random() * hoverColors.length)];
 }
+
+function updatePageScale() {
+  const baseWidth = 1440;
+  const viewportWidth = document.documentElement.clientWidth;
+  const scale = Math.min(1, viewportWidth / baseWidth);
+
+  page.style.setProperty("--page-scale", scale.toFixed(4));
+}
+
+updatePageScale();
+window.addEventListener("resize", updatePageScale);
 
 toolRows.forEach((row) => {
   row.addEventListener("pointerenter", () => {
@@ -74,4 +86,12 @@ function playClickSound() {
   clickSound.play().catch(() => {});
 }
 
-document.addEventListener("click", playClickSound);
+function isInteractiveClickTarget(element) {
+  return Boolean(element.closest("a, button, .tool-row[role='link']"));
+}
+
+document.addEventListener("click", (event) => {
+  if (isInteractiveClickTarget(event.target)) {
+    playClickSound();
+  }
+});
