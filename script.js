@@ -24,10 +24,16 @@ function updatePageScale() {
   const scale = Math.min(1, viewportWidth / baseWidth);
 
   page.style.setProperty("--page-scale", scale.toFixed(4));
+  document.body.style.setProperty("--scaled-page-height", `${Math.ceil(page.scrollHeight * scale)}px`);
 }
 
 updatePageScale();
 window.addEventListener("resize", updatePageScale);
+window.addEventListener("load", updatePageScale);
+
+if (document.fonts) {
+  document.fonts.ready.then(updatePageScale);
+}
 
 toolRows.forEach((row) => {
   row.addEventListener("pointerenter", () => {
