@@ -1,6 +1,5 @@
 const toolRows = document.querySelectorAll(".tool-row");
 const avatarLink = document.querySelector(".avatar-link");
-const page = document.querySelector(".page");
 const clickSound = new Audio("./assets/sound.mp3");
 clickSound.preload = "auto";
 const hoverColors = [
@@ -16,23 +15,6 @@ const hoverColors = [
 
 function randomHoverColor() {
   return hoverColors[Math.floor(Math.random() * hoverColors.length)];
-}
-
-function updatePageScale() {
-  const baseWidth = 1440;
-  const viewportWidth = document.documentElement.clientWidth;
-  const scale = Math.min(1, viewportWidth / baseWidth);
-
-  page.style.setProperty("--page-scale", scale.toFixed(4));
-  document.body.style.setProperty("--scaled-page-height", `${Math.ceil(page.scrollHeight * scale)}px`);
-}
-
-updatePageScale();
-window.addEventListener("resize", updatePageScale);
-window.addEventListener("load", updatePageScale);
-
-if (document.fonts) {
-  document.fonts.ready.then(updatePageScale);
 }
 
 toolRows.forEach((row) => {
